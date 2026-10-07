@@ -105,3 +105,16 @@ The current room manager is intentionally in-memory for a small LAN deployment. 
 - Add authentication and player profiles.
 - Add server-side rate limits and action validation for internet-facing deployments.
 - Build the frontend with `npm run build`, then serve `frontend/dist` from your preferred web server.
+
+
+## To run this app locally 
+- **ENV FILE:** 
+DATABASE_URL=mysql+pymysql://arcade_user:arcade_password@db:3306/local_arcade
+MYSQL_DATABASE=local_arcade
+MYSQL_USER=arcade_user
+MYSQL_PASSWORD=arcade_password
+MYSQL_RANDOM_ROOT_PASSWORD=yes 
+
+- make a env file
+- add this in that 
+- make the env file in the same folder as docker compose file
