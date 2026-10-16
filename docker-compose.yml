@@ -1,0 +1,39 @@
+services:
+  app1:
+    build: ./backend
+    container_name: app1
+    env_file: .env
+    ports:
+      - "8000:8000"
+    networks:
+      - backend
+      - frontend
+
+
+  nginx:
+    build: ./frontend
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on: 
+      - app1
+    networks:
+      - frontend
+
+  db: 
+    image: mysql:8.0-debian
+    container_name: db
+    env_file: .env 
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql  
+    networks:
+      - backend
+
+
+volumes:
+  db_data:
+
+networks:
+  frontend:
+  backend: 
