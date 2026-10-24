@@ -1,0 +1,46 @@
+name: Build & deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login Docker
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build images
+        run: |
+          IMG_TAG=${{ github.sha }}
+          docker build -t l4ksh1928/be-la:$IMG_TAG .
+          docker build -t l4ksh1928/fe-la:$IMG_TAG ./proxy
+          docker build -t l4ksh1928/db-la:$IMG_TAG ./db
+
+      - name: Push images
+        run: |
+          IMG_TAG=${{ github.sha }}
+          docker push l4ksh1928/be-la:$IMG_TAG
+          docker push l4ksh1928/fe-la:$IMG_TAG
+          docker push l4ksh1928/db-la:$IMG_TAG
+
+      - name: Deploy to Kubernetes
+        run: |
+          IMG_TAG=${{ github.sha }}
+          
+          # Apply infrastructure changes
+          kubectl apply -f k8s/
+          
+          # Update images for deployments
+          kubectl set image deployment/app1 backend=l4ksh1928/be-la:$IMG_TAG -n local-arcade
+          kubectl set image deployment/nginx nginx=l4ksh1928/fe-la:$IMG_TAG -n local-arcade
+          kubectl set image deployment/db db=l4ksh1928/db-la:$IMG_TAG -n local-arcade
